@@ -13,12 +13,13 @@ public class ContextImpl implements Context {
     @Override
     public int getCompletedTaskCount() {
         final AtomicInteger completedTaskCount = new AtomicInteger();
-        futureList.forEach((v) -> {
+        futureList.stream().filter(Future::isDone)
+        .forEach((v) -> {
             try {
                 v.get();
                 completedTaskCount.incrementAndGet();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         });
         return completedTaskCount.get();
@@ -27,16 +28,15 @@ public class ContextImpl implements Context {
     @Override
     public int getFailedTaskCount() {
         final AtomicInteger failedTaskCount = new AtomicInteger();
-        futureList.forEach((v) -> {
+        futureList.stream().filter(Future::isDone).forEach(v -> {
             try {
                 v.get();
             } catch (ExecutionException e) {
                 failedTaskCount.incrementAndGet();
-                e.printStackTrace();
+                //e.printStackTrace();
             } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+                //e.printStackTrace();
+            }});
         return failedTaskCount.get();
     }
 
@@ -47,7 +47,7 @@ public class ContextImpl implements Context {
 
     @Override
     public void interrupt() {
-        futureList.forEach(Future::isCancelled);
+        futureList.forEach((v) -> v.cancel(false));
     }
 
     @Override
