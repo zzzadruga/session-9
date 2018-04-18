@@ -1,12 +1,12 @@
 package ru.sbt.jschool.session9;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ContextImpl implements Context {
-    private List<Future> futureList;
-    public ContextImpl(List<Future> futureList){
+    private Collection<Future> futureList;
+    public ContextImpl(Collection<Future> futureList){
         this.futureList = futureList;
     }
 
