@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class ExecutionManagerImpl implements ExecutionManager {
     @Override
@@ -14,7 +15,7 @@ public class ExecutionManagerImpl implements ExecutionManager {
         for(Runnable runnable : tasks){
             futureList.add(executorService.submit(runnable));
         }
-        executorService.shutdown();
+        new Thread(() -> shutdownAndAwaitTermination(executorService)).start();
         new Thread(() -> runCallback(callback, executorService)).start();
         return new ContextImpl(futureList);
     }
@@ -26,6 +27,20 @@ public class ExecutionManagerImpl implements ExecutionManager {
                 thread.start();
                 break;
             }
+        }
+    }
+
+    private void shutdownAndAwaitTermination(ExecutorService executorService) {
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(3, TimeUnit.MINUTES)) {
+                executorService.shutdownNow();
+                if (!executorService.awaitTermination(3, TimeUnit.MINUTES))
+                    System.err.println("Pool did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 }
