@@ -2,7 +2,6 @@ package ru.sbt.jschool.session9;
 
 import java.util.Collection;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ContextImpl implements Context {
     private Collection<Future> futureList;
@@ -12,32 +11,32 @@ public class ContextImpl implements Context {
 
     @Override
     public int getCompletedTaskCount() {
-        final AtomicInteger completedTaskCount = new AtomicInteger();
+        int[] t = new int[1];
         futureList.stream().filter(Future::isDone)
         .forEach((v) -> {
             try {
                 v.get();
-                completedTaskCount.incrementAndGet();
+                t[0]++;
             } catch (Exception e) {
                 //e.printStackTrace();
             }
         });
-        return completedTaskCount.get();
+        return t[0];
     }
 
     @Override
     public int getFailedTaskCount() {
-        final AtomicInteger failedTaskCount = new AtomicInteger();
+        int[] t = new int[1];
         futureList.stream().filter(Future::isDone).forEach(v -> {
             try {
                 v.get();
             } catch (ExecutionException e) {
-                failedTaskCount.incrementAndGet();
+                t[0]++;
                 //e.printStackTrace();
             } catch (Exception e) {
                 //e.printStackTrace();
             }});
-        return failedTaskCount.get();
+        return t[0];
     }
 
     @Override
